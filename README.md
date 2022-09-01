@@ -19,6 +19,8 @@ $ git clone git@github.com:arrow003/ansible_clamav.git
 
 $ ansible-playbook ansible_clamav_centos7.yaml
 
+$ cd ansible_clamav
+
 说明：CentOS7、RedHat7都可以
 
 $ ansible-playbook ansible_clamav_centos8.yaml
