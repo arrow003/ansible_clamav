@@ -32,7 +32,9 @@ $ ansible-playbook ansible_clamav_centos8.yaml
 
 ## 更新ClamAV病毒库
 
-$ ansible-playbook ansible_clamav_fedora.yaml --tags update_clamav_dat
+$ ansible-playbook ansible_clamav_centos7.yaml --tags freshclam
+
+$ ansible-playbook ansible_clamav_centos8.yaml --tags freshclam
 
 ## 测试ClamAV运行
 
@@ -47,7 +49,3 @@ clamscan   38558       1 40 23:25 ?        00:00:44 /usr/sbin/clamd
 如果存在两个进程，说明还在启动过程中
 
 $ /usr/bin/clamdscan  -i  /var/log
-
-## 更新ClamAV版本
-
-$ ansible-playbook ansible_clamav_fedora.yaml --tags install_and_update
