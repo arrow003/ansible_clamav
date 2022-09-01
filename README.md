@@ -30,7 +30,9 @@ $ ansible-playbook ansible_clamav_centos8.yaml
 
 ## 更新ClamAV病毒库
 
-$ ansible-playbook ansible_clamav_fedora.yaml --tags update_clamav_dat
+$ ansible-playbook ansible_clamav_centos7.yaml --tags update_clamav_dat
+
+$ ansible-playbook ansible_clamav_centos8.yaml --tags update_clamav_dat
 
 ## 测试ClamAV运行
 
@@ -48,4 +50,6 @@ $ /usr/bin/clamdscan  -i  /var/log
 
 ## 更新ClamAV版本
 
-$ ansible-playbook ansible_clamav_fedora.yaml --tags install_and_update
+$ ansible-playbook ansible_clamav_centos7.yaml --tags install_and_update
+
+$ ansible-playbook ansible_clamav_centos8.yaml --tags install_and_update
