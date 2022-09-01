@@ -15,11 +15,11 @@ $ cat /etc/ansible/hosts
 
 $ git clone git@github.com:arrow003/ansible_clamav.git
 
+$ cd ansible_clamav
+
 3.执行playbook
 
 $ ansible-playbook ansible_clamav_centos7.yaml
-
-$ cd ansible_clamav
 
 说明：CentOS7、RedHat7都可以
 
