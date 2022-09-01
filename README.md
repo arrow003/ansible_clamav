@@ -17,6 +17,8 @@ $ git clone git@github.com:arrow003/ansible_clamav.git
 
 $ cd ansible_clamav
 
+$ git checkout ansible_clamav_resource
+
 3.执行playbook
 
 $ ansible-playbook ansible_clamav_centos7.yaml
