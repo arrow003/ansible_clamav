@@ -2,6 +2,8 @@
 - hosts: ClamAV_centos7
   vars:
     hello: Ansible
+    clamav_version: 0.103.7
+
 
   environment:
 #    https_proxy: 
@@ -9,45 +11,101 @@
 #    no_proxy: 
 
   tasks:
-  - name: Install EPEL
+  - name: Install EPEL 1
     yum:
       name:
        - epel-release 
+       - dnf-plugins-core
       state: latest
       disable_gpg_check: yes 
-    tags: install
+    tags: install1
 
-#  - name: EPEL REPO SET1
-#    shell: cp -r /etc/yum.repos.d /etc/yum.repos.d.bak
-#    tags: configuration
+  - name: Install EPEL 2
+    yum:
+      name: 'http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
+      state: present
+    tags: install1
 
-
-  - name: EPEL REPO SET
+  - name: EPEL REPO SET1
     copy:
       src=epel-7/
       dest=/etc/
       backup=yes
       force=yes
-    tags: epel_configuration
+    tags: configuration
 
-  - name: Install ClamAV
-    yum:
+  - name: EPEL REPO SET2
+    shell: dnf config-manager --set-enabled powertools 
+    tags: configuration
+
+  - name: Install package make etc
+    dnf:
       name:
-       - clamav
-       - clamd
-       - clamav-update
-       - clamav-data
-       - clamav-devel
-       - clamav-lib
-       - clamav-milter
-      state: latest
-      disable_gpg_check: yes
-    tags: install_and_update
+       - gcc
+       - gcc-c++
+       - make
+       - valgrind
+       - bzip2-devel
+       - check-devel
+       - json-c-devel
+       - libcurl-devel
+       - libxml2-devel
+       - ncurses-devel
+       - openssl-devel
+       - pcre2-devel
+       - sendmail-devel
+       - zlib-devel  
+       - autoconf
+       - automake
+       - libtool
+       - libtool-ltdl-devel
+       - perl
+    tags: install2
 
-  - name: Update ClamAV DAT
-    shell: /usr/bin/freshclam --quiet --no-warnings
-    tags: update_clamav_dat
+  - name: download source code
+    get_url: url=https://www.clamav.net/downloads/production/clamav-{{clamav_version}}.tar.gz dest=/root
+    tags: download
 
-  - name: ClamAV SET
-    shell: sed -e 's|^#TCPAddr|TCPAddr|g' -e 's|^#TCPSocket|TCPSocket|g' -i.bak /etc/clamd.d/scan.conf
-    tags: clamav_set
+  - name: Unarchive go
+    unarchive:
+      src: /root/clamav-{{clamav_version}}.tar.gz
+      dest: /root 
+      copy: no
+    tags: download
+
+  - name: Build ClamAV 1 
+    shell: mkdir /root/clamav-{{clamav_version}}/build && cd /root/clamav-{{clamav_version}}/build && /root/clamav-{{clamav_version}}/autogen.sh && /root/clamav-{{clamav_version}}/configure --prefix=/usr --sysconfdir=/etc/clamav --with-dbdir=/var/lib/clamav --enable-milter
+    tags: build 
+
+
+  - name: Build ClamAV 2
+    make:
+      chdir: /root/clamav-{{clamav_version}}/build
+    tags: build
+
+  - name: Build ClamAV 3 
+    make:
+      chdir: /root/clamav-{{clamav_version}}/build
+      target: install 
+    become: yes
+    tags: build
+
+  - name: Config ClamAV 1
+    shell: cp -p /etc/freshclam.conf.sample /etc/freshclam.conf && cp -p /etc/clamav/clamd.conf.sample /etc/clamav/clamd.conf
+    tags: config
+
+  - name: Config ClamAV 2
+    shell: touch /var/log/freshclam.log && chmod 600 /var/log/freshclam.log && chown root /var/log/freshclam.log
+    tags: config
+
+  - name: freshclam set
+    shell: sed -e 's|^Example|#Example|g' -e 's|^#DatabaseDirectory|DatabaseDirectory|g'  -e 's|^#UpdateLogFile|UpdateLogFile|g'  -e 's|^#DatabaseOwner clamav|DatabaseOwner root|g'  -i.bak /etc/clamav/freshclam.conf
+    tags: freshclam_set
+
+  - name: freshclam
+    shell: /usr/bin/freshclam --quiet --no-warnings 
+    tags: freshclam
+
+  - name: clamd set
+    shell: sed -e 's|^#TCPAddr|TCPAddr|g' -e 's|^#TCPSocket|TCPSocket|g' -e 's|^Example|#Example|g' -i.bak /etc/clamav/clamd.conf 
+    tags: clmad_set
