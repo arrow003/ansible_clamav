@@ -40,13 +40,13 @@ $ /usr/sbin/clamd &
 
 稍等1-2分钟，待clamscan启动完成
 
-$ ps -ef|grep clam
+$ ps -ef | grep clam
 ```
 clamscan   38558       1 40 23:25 ?        00:00:44 /usr/sbin/clamd
 ```
 如果存在两个进程，说明还在启动过程中
 
-$ /usr/bin/clamdscan  -i  /var/log
+$ /usr/bin/clamdscan -i /var/log
 
 ## 更新ClamAV版本
 
